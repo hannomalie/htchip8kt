@@ -18,8 +18,8 @@ class Emulator(val renderer: Renderer) {
     internal var I: UShort = 0u
     internal var programCounter: UShort = gameOffset.toUShort()
 
-    val frameBuffer = Array(64) {
-        BooleanArray(32) { false }
+    val frameBuffer = Array(Display.dimension.x) {
+        BooleanArray(Display.dimension.y) { false }
     }
     init {
         renderer.setEmulator(this)
@@ -74,6 +74,11 @@ class Display {
             }
         )
         println()
+    }
+
+    object dimension {
+        val x = 64
+        val y = 32
     }
 }
 

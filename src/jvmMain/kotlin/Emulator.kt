@@ -55,7 +55,7 @@ actual class Renderer : JPanel() {
     }
 
     init {
-        LafManager.install();
+        LafManager.install()
         val frame = JFrame("DrawRect")
         val menuBar = JMenuBar()
         menuBar.add(JButton("Restart").apply {
