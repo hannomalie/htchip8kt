@@ -23,7 +23,11 @@ kotlin {
             }
         }
 
-        val jvmMain by creating { }
+        val jvmMain by creating {
+            dependencies {
+                implementation("com.github.weisj:darklaf-core:2.7.3")
+            }
+        }
         val jvmTest by creating {
             dependsOn(commonTest)
             dependencies {
