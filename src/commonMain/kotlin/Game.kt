@@ -1,0 +1,1 @@
+class Game(val bytyes: ByteArray)

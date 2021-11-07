@@ -8,11 +8,7 @@ internal class RuntimeTest {
     @Tag("manual")
     fun `execute ibm logo test`() {
         Runtime().run {
-            var renderer: Renderer? = null
-            SwingUtilities.invokeAndWait {
-                renderer = Renderer()
-            }
-            Emulator(renderer!!).run {
+            Emulator(SwingRenderer()).run {
                 load(Game(File("IBMLogo.ch8").readBytes()))
                 execute()
             }

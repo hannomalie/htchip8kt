@@ -28,6 +28,7 @@ data class SetIndex(override val nibbles: Nibbles): OpCode {
 }
 data class Draw(override val nibbles: Nibbles): OpCode {
     override fun Emulator.execute() {
+        V[0x0F] = 0
         val sprites = mutableListOf<Byte>()
         repeat(nibbles.d.toInt()) {
             sprites.add(memory[I.toInt() + it])
@@ -36,14 +37,16 @@ data class Draw(override val nibbles: Nibbles): OpCode {
         val yStart = V[nibbles.y.toInt()].toInt()
         repeat(8) { currentX ->
             sprites.forEachIndexed { currentY, sprite ->
-                val targetValue = BitSet(sprite)[7-currentX]
+                val valueAfter = BitSet(sprite)[7-currentX]
                 val resultingXCoord = (xStart + currentX) % Display.dimension.x
                 val resultingYCoord = (yStart + currentY) % Display.dimension.y
                 val valueBefore = frameBuffer[resultingXCoord][resultingYCoord]
-                val setBit = valueBefore xor targetValue
+                val setBit = valueBefore xor valueAfter
                 frameBuffer[resultingXCoord][resultingYCoord] = setBit
                 if (setBit) {
                     drawRequested = true
+                }
+                if (valueBefore && !valueAfter) {
                     V[0x0F] = 1
                 }
             }
@@ -85,14 +88,6 @@ data class Unknown(override val nibbles: Nibbles): OpCode {
         println("Unknown opcode: $nibbles")
     }
 }
-
-expect class BitSet(size: Int) {
-    operator fun get(index: Int): Boolean
-    fun set(index: Int, value: Boolean)
-    fun clear(index: Int)
-    fun or(another: BitSet)
-}
-expect fun BitSet(byte: Byte): BitSet
 
 //0nnn - SYS addr
 //Jump to a machine code routine at nnn.

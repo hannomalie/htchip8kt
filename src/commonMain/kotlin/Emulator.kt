@@ -1,16 +1,9 @@
-class Game(val bytyes: ByteArray)
-
-expect class Renderer {
-    var drawGrid: Boolean
-    fun setEmulator(emulator: Emulator)
-    fun requestDraw()
-}
 @OptIn(ExperimentalUnsignedTypes::class)
 class Emulator(val renderer: Renderer) {
     var awaitingKeyIndexPressed: UInt? = null
     var skipNextInstruction = false
     private val display = Display()
-    private var opCode: OpCode = NoOp
+    private var currentOpCode: OpCode = NoOp
     internal var drawRequested = true
     internal val memory = ByteArray(4096) { 0 }
     internal val V = ByteArray(16) { 0 }
@@ -21,31 +14,38 @@ class Emulator(val renderer: Renderer) {
     val frameBuffer = Array(Display.dimension.x) {
         BooleanArray(Display.dimension.y) { false }
     }
+
     init {
-        renderer.setEmulator(this)
+        renderer.emulator = this
     }
 
     fun step() {
         val firstByte = memory[programCounter.toInt()]
         val secondByte = memory[(programCounter.toInt() + 1)]
         val nibbles = Nibbles(firstByte.toUByte(), secondByte.toUByte())
-        opCode = nibbles.toOpcode()
+        currentOpCode = nibbles.toOpcode()
 
-        if(!skipNextInstruction && awaitingKeyIndexPressed == null) {
-            opCode.run {
-                execute()
-                if(drawRequested) {
-                    display.run {
-                        draw()
-                        renderer.requestDraw()
+        if(awaitingKeyIndexPressed == null) {
+            if(skipNextInstruction) {
+                skipNextInstruction = false
+            } else {
+                currentOpCode.run {
+                    execute()
+                    if(drawRequested || frameBufferDirty) {
+                        display.run {
+                            renderer.draw()
+                        }
+                        drawRequested = false
                     }
-                    drawRequested = false
                 }
-                programCounter = (programCounter + 2.toUShort()).toUShort()
             }
-            skipNextInstruction = false
+            programCounter = (programCounter + 2.toUShort()).toUShort()
+        } else {
+            // TODO: check for key input here
         }
     }
+
+    val frameBufferDirty: Boolean get() = V[0x0F].toUInt() == 1u && currentOpCode is Draw
 
     fun load(game: Game) {
         game.bytyes.forEachIndexed { index, byte ->
@@ -65,23 +65,3 @@ class Emulator(val renderer: Renderer) {
     }
 }
 
-class Display {
-
-    fun Emulator.draw() {
-        print(
-            frameBuffer.joinToString("\n") { line ->
-                line.joinToString("") { value -> if (value) "X" else "_" }
-            }
-        )
-        println()
-    }
-
-    object dimension {
-        val x = 64
-        val y = 32
-    }
-}
-
-expect class Runtime {
-    fun Emulator.execute()
-}
