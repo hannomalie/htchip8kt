@@ -14,4 +14,14 @@ internal class RuntimeTest {
             }
         }
     }
+    @Test
+    @Tag("manual")
+    fun `execute rom test`() {
+        Runtime().run {
+            Emulator(SwingRenderer()).run {
+                load(Game(File("test_opcode.ch8").readBytes()))
+                execute()
+            }
+        }
+    }
 }

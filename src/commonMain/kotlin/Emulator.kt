@@ -10,6 +10,12 @@ class Emulator(val renderer: Renderer) {
 
     internal var I: UShort = 0u
     internal var programCounter: UShort = gameOffset.toUShort()
+    internal val stack = Array<UShort>(16) { 0u }
+    internal var stackPointer = 0
+    internal var keysPressed = mutableSetOf<UInt>()
+
+    internal var delay = 0u
+    internal var sound = 0u
 
     val frameBuffer = Array(Display.dimension.x) {
         BooleanArray(Display.dimension.y) { false }
@@ -51,7 +57,7 @@ class Emulator(val renderer: Renderer) {
         game.bytyes.forEachIndexed { index, byte ->
             memory[gameOffset + index] = byte
         }
-        programCounter = gameOffset.toUShort()
+        restart()
     }
 
     fun restart() {
