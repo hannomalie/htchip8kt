@@ -24,4 +24,15 @@ internal class RuntimeTest {
             }
         }
     }
+
+    @Test
+    @Tag("manual")
+    fun `execute space invaders`() {
+        Runtime().run {
+            Emulator(SwingRenderer()).run {
+                load(Game(File("Space Invaders [David Winter].ch8").readBytes()))
+                execute()
+            }
+        }
+    }
 }

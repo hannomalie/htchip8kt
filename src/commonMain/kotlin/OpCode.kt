@@ -14,11 +14,7 @@ object NoOp: OpCode {
 
 data class ClearScreen(override val nibbles: Nibbles): OpCode {
     override fun Emulator.execute() {
-        frameBuffer.forEach {
-            it.forEachIndexed { index, row ->
-                it[index] = false
-            }
-        }
+        clearFrameBuffer()
     }
 }
 data class Ret(override val nibbles: Nibbles): OpCode {

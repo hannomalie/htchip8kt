@@ -64,8 +64,15 @@ class Emulator(val renderer: Renderer) {
         programCounter = gameOffset.toUShort()
         skipNextInstruction = false
         awaitingKeyIndexPressed = null
+        clearFrameBuffer()
     }
-
+    fun clearFrameBuffer() {
+        frameBuffer.forEach {
+            it.forEachIndexed { index, row ->
+                it[index] = false
+            }
+        }
+    }
     companion object {
         const val gameOffset = 512
     }
