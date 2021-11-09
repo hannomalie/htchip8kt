@@ -5,7 +5,13 @@ class Emulator(val renderer: Renderer) {
     private val display = Display()
     private var currentOpCode: OpCode = NoOp
     internal var drawRequested = true
-    internal val memory = ByteArray(4096) { 0 }
+    internal val memory = ByteArray(4096) { 0 }.apply {
+        Font.values().forEachIndexed { letterIndex, it ->
+            it.sprite.bytes.forEachIndexed { index, letterUByte ->
+                this[Font.bytesPerLetter * letterIndex + index] = letterUByte.toByte()
+            }
+        }
+    }
     internal val V = ByteArray(16) { 0 }
 
     internal var I: UShort = 0u
@@ -75,6 +81,7 @@ class Emulator(val renderer: Renderer) {
     }
     companion object {
         const val gameOffset = 512
+        const val fontOffset = 50
     }
 }
 
