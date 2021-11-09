@@ -25,7 +25,7 @@ fun Nibbles.toOpcode(): OpCode = when(a) {
         b == 0u && c == 0x0u && d == 0x0u -> NoOp
         b == 0u && c == 0xEu && d == 0x0u -> ClearScreen(this)
         b == 0u && c == 0xEu && d == 0xEu -> Ret(this)
-        else -> Unknown(this)
+        else -> CallMachineCode(this)
     }
     1u -> Jump(this)
     2u -> Call(this)

@@ -30,6 +30,7 @@ class Emulator(val renderer: Renderer) {
         val secondByte = memory[(programCounter.toInt() + 1)]
         val nibbles = Nibbles(firstByte.toUByte(), secondByte.toUByte())
         currentOpCode = nibbles.toOpcode()
+        programCounter = (programCounter + 2.toUShort()).toUShort()
 
         if(awaitingKeyIndexPressed == null) {
             if(skipNextInstruction) {
@@ -45,7 +46,6 @@ class Emulator(val renderer: Renderer) {
                     }
                 }
             }
-            programCounter = (programCounter + 2.toUShort()).toUShort()
         } else {
             // TODO: check for key input here
         }
