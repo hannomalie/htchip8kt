@@ -1,4 +1,6 @@
 expect class Runtime {
+    val keyListener: KeyListener
+    val renderer: Renderer
     fun Emulator.execute()
 }
 

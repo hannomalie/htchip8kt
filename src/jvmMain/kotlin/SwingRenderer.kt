@@ -2,9 +2,11 @@ import com.github.weisj.darklaf.LafManager
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics
+import java.awt.KeyboardFocusManager
 import javax.swing.*
 
-class SwingRenderer private constructor() : JPanel(), Renderer {
+
+class SwingRenderer private constructor(private val keyListener: KeyListener) : JPanel(), Renderer {
     override var drawGrid = false
     override var emulator: Emulator? = null
     override fun paintComponent(g: Graphics) {
@@ -23,11 +25,12 @@ class SwingRenderer private constructor() : JPanel(), Renderer {
         }
     }
     override fun draw() {
-        SwingUtilities.invokeLater { repaint() }
+        SwingUtilities.invokeAndWait { repaint() }
     }
 
     init {
         LafManager.install()
+
         val frame = JFrame("CHIP 8 powered by Kotlin multiplatform")
         val menuBar = JMenuBar()
         menuBar.add(JButton("Restart").apply {
@@ -50,6 +53,9 @@ class SwingRenderer private constructor() : JPanel(), Renderer {
         frame.contentPane.add(this)
         frame.pack()
         frame.isLocationByPlatform = true
+        KeyboardFocusManager
+            .getCurrentKeyboardFocusManager()
+            .addKeyEventDispatcher(keyListener)
         frame.isVisible = true
     }
 
@@ -59,10 +65,10 @@ class SwingRenderer private constructor() : JPanel(), Renderer {
         private const val RECT_WIDTH = 10
         private const val RECT_HEIGHT = RECT_WIDTH
 
-        operator fun invoke(): SwingRenderer {
+        operator fun invoke(keyListener: KeyListener): SwingRenderer {
             var renderer: SwingRenderer? = null
             SwingUtilities.invokeAndWait {
-                renderer = SwingRenderer()
+                renderer = SwingRenderer(keyListener)
             }
             return renderer!!
         }

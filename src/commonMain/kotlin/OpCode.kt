@@ -57,12 +57,12 @@ data class SetIndex(override val nibbles: Nibbles): OpCode {
 }
 data class SkipNextIfKeyPressed(override val nibbles: Nibbles): OpCode {
     override fun Emulator.execute() {
-        skipNextInstruction = keysPressed.contains(V[nibbles.x])
+        skipNextInstruction = keysDown.map { it.index }.contains(V[nibbles.x])
     }
 }
 data class SkipNextIfKeyNotPressed(override val nibbles: Nibbles): OpCode {
     override fun Emulator.execute() {
-        skipNextInstruction = !keysPressed.contains(V[nibbles.x])
+        skipNextInstruction = !keysDown.map { it.index }.contains(V[nibbles.x])
     }
 }
 data class Draw(override val nibbles: Nibbles): OpCode {
@@ -129,7 +129,6 @@ data class AddYToX(override val nibbles: Nibbles): OpCode {
         if(result > 255u) V[0x0F] = 1
     }
 }
-// TODO: Not correct
 data class SubtractYFromX(override val nibbles: Nibbles): OpCode {
     override fun Emulator.execute() {
         val vX = V[nibbles.x]
@@ -138,7 +137,6 @@ data class SubtractYFromX(override val nibbles: Nibbles): OpCode {
         if (vX < vY) V[0x0F] = 0
     }
 }
-// TODO: Not correct
 data class ShiftRight(override val nibbles: Nibbles): OpCode {
     override fun Emulator.execute() {
         V[nibbles.x] = (V[nibbles.x] shr 1).toByte()

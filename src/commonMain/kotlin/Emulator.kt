@@ -1,5 +1,9 @@
 @OptIn(ExperimentalUnsignedTypes::class)
-class Emulator(val renderer: Renderer) {
+class Emulator(runtime: Runtime) {
+
+    internal val renderer: Renderer = runtime.renderer
+    internal val keyListener: KeyListener = runtime.keyListener
+
     var awaitingKeyIndexPressed: UInt? = null
     var skipNextInstruction = false
     private val display = Display()
@@ -18,7 +22,7 @@ class Emulator(val renderer: Renderer) {
     internal var programCounter: UShort = gameOffset.toUShort()
     internal val stack = Array<UShort>(16) { 0u }
     internal var stackPointer = 0
-    internal var keysPressed = mutableSetOf<UInt>()
+    internal val keysDown by keyListener::keysDown
 
     internal var delay = 0u
     internal var sound = 0u
@@ -38,8 +42,8 @@ class Emulator(val renderer: Renderer) {
         currentOpCode = nibbles.toOpcode()
         programCounter = (programCounter + 2.toUShort()).toUShort()
 
-        if(awaitingKeyIndexPressed == null) {
-            if(skipNextInstruction) {
+        when (val awaitingKeyIndexPressed = awaitingKeyIndexPressed) {
+            null -> if(skipNextInstruction) {
                 skipNextInstruction = false
             } else {
                 currentOpCode.run {
@@ -52,8 +56,12 @@ class Emulator(val renderer: Renderer) {
                     }
                 }
             }
-        } else {
-            // TODO: check for key input here
+            else -> {
+                if(keysDown.map { it.index }.contains(awaitingKeyIndexPressed)) {
+                    this.awaitingKeyIndexPressed = null
+                }
+                programCounter = (programCounter - 2.toUShort()).toUShort()
+            }
         }
     }
 
