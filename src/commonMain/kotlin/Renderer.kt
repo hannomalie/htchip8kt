@@ -1,12 +1,15 @@
 interface Renderer {
     var drawGrid: Boolean
+    var crtEffect: Boolean
     var emulator: Emulator?
     fun draw()
+    fun update() { }
 }
 
 class CommandlineRenderer : Renderer {
     override var emulator: Emulator? = null
     override var drawGrid = false
+    override var crtEffect = true
 
     override fun draw(): Unit = emulator?.let { emulator ->
         print(

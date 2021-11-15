@@ -48,7 +48,8 @@ class Emulator(runtime: Runtime) {
             } else {
                 currentOpCode.run {
                     execute()
-                    if(drawRequested || frameBufferDirty) {
+                    renderer.update()
+                    if(renderer.crtEffect || drawRequested || frameBufferDirty) {
                         display.run {
                             renderer.draw()
                         }

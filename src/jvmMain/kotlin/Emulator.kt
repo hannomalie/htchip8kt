@@ -8,8 +8,6 @@ actual class Runtime {
     actual val keyListener = KeyListener()
     actual val renderer: Renderer = SwingRenderer(keyListener)
     actual fun Emulator.execute() {
-        val executor: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
-        val result = executor.scheduleAtFixedRate(::step, 0, 1, TimeUnit.MILLISECONDS)
 
         val timerExecutor: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
         timerExecutor.scheduleAtFixedRate({
@@ -17,7 +15,9 @@ actual class Runtime {
             if(sound > 0u) { sound-- }
         }, 0, 16, TimeUnit.MILLISECONDS)
 
-        result.get()
+        timerExecutor.scheduleAtFixedRate({
+          step()
+        }, 0, 1, TimeUnit.MILLISECONDS).get()
     }
 }
 

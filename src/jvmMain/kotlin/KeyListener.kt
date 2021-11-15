@@ -1,9 +1,10 @@
 import java.awt.KeyEventDispatcher
 import java.awt.event.KeyEvent
+import java.util.concurrent.ConcurrentHashMap
 import javax.swing.SwingUtilities
 
 actual class KeyListener: KeyEventDispatcher {
-    private val _keysDown = mutableSetOf<Keys>()
+    private val _keysDown = ConcurrentHashMap.newKeySet<Keys>()
     actual val keysDown: Set<Keys> = _keysDown
 
     override fun dispatchKeyEvent(e: KeyEvent): Boolean {
