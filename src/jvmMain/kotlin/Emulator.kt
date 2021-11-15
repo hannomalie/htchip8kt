@@ -27,23 +27,23 @@ fun main() = Runtime().run {
 
 val KeyEvent.keyOrNull
     get() = when (keyCode) {
-        KeyEvent.VK_1 -> Keys.`1`
-        KeyEvent.VK_2 -> Keys.`2`
-        KeyEvent.VK_3 -> Keys.`3`
+        KeyEvent.VK_1 -> Keys.Number1
+        KeyEvent.VK_2 -> Keys.Number2
+        KeyEvent.VK_3 -> Keys.Number3
         KeyEvent.VK_4 -> Keys.C
 
-        KeyEvent.VK_Q -> Keys.`4`
-        KeyEvent.VK_W -> Keys.`5`
-        KeyEvent.VK_E -> Keys.`6`
+        KeyEvent.VK_Q -> Keys.Number4
+        KeyEvent.VK_W -> Keys.Number5
+        KeyEvent.VK_E -> Keys.Number6
         KeyEvent.VK_R -> Keys.D
 
-        KeyEvent.VK_A -> Keys.`7`
-        KeyEvent.VK_S -> Keys.`8`
-        KeyEvent.VK_D -> Keys.`9`
+        KeyEvent.VK_A -> Keys.Number7
+        KeyEvent.VK_S -> Keys.Number8
+        KeyEvent.VK_D -> Keys.Number9
         KeyEvent.VK_F -> Keys.E
 
         KeyEvent.VK_Y -> Keys.A
-        KeyEvent.VK_X -> Keys.`0`
+        KeyEvent.VK_X -> Keys.Number0
         KeyEvent.VK_C -> Keys.B
         KeyEvent.VK_V -> Keys.F
         else -> null

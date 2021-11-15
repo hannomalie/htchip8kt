@@ -3,9 +3,9 @@ expect class KeyListener {
 }
 
 enum class Keys(val index: UInt) {
-    `1`(0u), `2`(1u), `3`(2u), C(3u),
-    `4`(4u), `5`(5u), `6`(6u), D(7u),
-    `7`(8u), `8`(9u), `9`(10u), E(11u),
-    A(12u), `0`(13u), B(14u), F(15u),
+    Number1(0u), Number2(1u), Number3(2u), C(3u),
+    Number4(4u), Number5(5u), Number6(6u), D(7u),
+    Number7(8u), Number8(9u), Number9(10u), E(11u),
+    A(12u), Number0(13u), B(14u), F(15u),
     ;
 }
