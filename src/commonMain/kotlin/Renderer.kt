@@ -3,7 +3,7 @@ interface Renderer {
     var crtEffect: Boolean
     var emulator: Emulator?
     fun draw()
-    fun update() { }
+    fun update(deltaSeconds: Float) { }
 }
 
 class CommandlineRenderer : Renderer {

@@ -35,7 +35,7 @@ class Emulator(runtime: Runtime) {
         renderer.emulator = this
     }
 
-    fun step() {
+    fun step(deltaSeconds: Float) {
         val firstByte = memory[programCounter.toInt()]
         val secondByte = memory[(programCounter.toInt() + 1)]
         val nibbles = Nibbles(firstByte.toUByte(), secondByte.toUByte())
@@ -48,7 +48,7 @@ class Emulator(runtime: Runtime) {
             } else {
                 currentOpCode.run {
                     execute()
-                    renderer.update()
+                    renderer.update(deltaSeconds)
                     if(renderer.crtEffect || drawRequested || frameBufferDirty) {
                         display.run {
                             renderer.draw()

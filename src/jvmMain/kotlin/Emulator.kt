@@ -15,9 +15,10 @@ actual class Runtime {
             if(sound > 0u) { sound-- }
         }, 0, 16, TimeUnit.MILLISECONDS)
 
+        val intervalInMs: Long = 1
         timerExecutor.scheduleAtFixedRate({
-          step()
-        }, 0, 1, TimeUnit.MILLISECONDS).get()
+          step(1000f/intervalInMs.toFloat())
+        }, 0, intervalInMs, TimeUnit.MILLISECONDS).get()
     }
 }
 

@@ -24,7 +24,7 @@ class SwingRenderer private constructor(private val keyListener: KeyListener) : 
         FloatArray(Display.dimension.y) { 0f }
     }
 
-    override fun update() {
+    override fun update(deltaSeconds: Float) {
         emulator?.let { emulator ->
             lastFrameBuffer.forEachIndexed { columnIndex, column ->
                 column.forEachIndexed { rowIndex, row ->
@@ -39,21 +39,31 @@ class SwingRenderer private constructor(private val keyListener: KeyListener) : 
         }
     }
 
+    private val alphaColorCache = mutableListOf<Color?>().apply {
+        repeat(256) { add(it, null) }
+    }
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
+        g.color = white
+        g.fillRect(
+            padding,
+            padding,
+            Display.dimension.x * pixelWidth,
+            Display.dimension.y * pixelHeight
+        )
         if (crtEffect) {
             lastFrameBuffer.forEachIndexed { columnIndex, column ->
                 column.forEachIndexed { rowIndex, row ->
-                    g.color = if (column[rowIndex] > 0) {
+                    if (column[rowIndex] > 0) {
                         val alpha = (column[rowIndex] * 255).toInt()
-                        Color(black.red, black.green, black.blue, alpha)
-                    } else white
-                    g.fillRect(
-                        padding + (columnIndex * pixelWidth),
-                        padding + (rowIndex * pixelHeight),
-                        pixelWidth,
-                        pixelHeight
-                    )
+                        g.color = alphaColorCache.computeIfAbsent(alpha) { Color(black.red, black.green, black.blue, alpha) }
+                        g.fillRect(
+                            padding + (columnIndex * pixelWidth),
+                            padding + (rowIndex * pixelHeight),
+                            pixelWidth,
+                            pixelHeight
+                        )
+                    }
                     if (drawGrid) {
                         g.color = black
                         g.drawRect(
@@ -159,4 +169,10 @@ class SwingRenderer private constructor(private val keyListener: KeyListener) : 
             SwingRenderer(keyListener)
         }
     }
+}
+
+private inline fun <E> MutableList<E>.computeIfAbsent(alpha: Int, function: () -> E): E {
+    if(get(alpha) == null) add(alpha, function())
+
+    return this[alpha]
 }
