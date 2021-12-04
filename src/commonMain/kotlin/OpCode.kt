@@ -79,9 +79,9 @@ data class Draw(override val nibbles: Nibbles): OpCode {
                 val valueAfter = BitSet(sprite)[7-currentX]
                 val resultingXCoord = (xStart + currentX) % Display.dimension.x
                 val resultingYCoord = (yStart + currentY) % Display.dimension.y
-                val valueBefore = frameBuffer[resultingXCoord][resultingYCoord]
+                val valueBefore = frameBuffer[resultingYCoord][resultingXCoord]
                 val setBit = valueBefore xor valueAfter
-                frameBuffer[resultingXCoord][resultingYCoord] = setBit
+                frameBuffer[resultingYCoord][resultingXCoord] = setBit
                 if (setBit) {
                     drawRequested = true
                 }

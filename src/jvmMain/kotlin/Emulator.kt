@@ -4,12 +4,15 @@ import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 
-actual class Runtime {
-    actual val keyListener = KeyListener()
-    actual val renderer: Renderer = SwingRenderer(keyListener)
-    actual fun Emulator.execute() {
+class JvmRuntime(
+    override val keyListener: KeyListener,
+    override val renderer: Renderer,
+): Runtime {
+    constructor(renderer: SwingRenderer = SwingRenderer()): this(renderer.keyListener, renderer)
 
-        val timerExecutor: ScheduledExecutorService = Executors.newScheduledThreadPool(1)
+    override fun Emulator.execute() {
+
+        val timerExecutor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
         timerExecutor.scheduleAtFixedRate({
             if(delay > 0u) { delay-- }
             if(sound > 0u) { sound-- }
@@ -22,8 +25,16 @@ actual class Runtime {
     }
 }
 
-fun main() = Runtime().run {
-    Emulator(this).execute()
+object SwingMain {
+    @JvmStatic
+    fun main(args: Array<String>) {
+        JvmRuntime().run {
+            Emulator(this).run {
+                load(Game(javaClass.getResourceAsStream("Space Invaders [David Winter].ch8").readBytes()))
+                execute()
+            }
+        }
+    }
 }
 
 val KeyEvent.keyOrNull

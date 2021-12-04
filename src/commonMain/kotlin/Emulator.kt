@@ -27,9 +27,7 @@ class Emulator(runtime: Runtime) {
     internal var delay = 0u
     internal var sound = 0u
 
-    val frameBuffer = Array(Display.dimension.x) {
-        BooleanArray(Display.dimension.y) { false }
-    }
+    val frameBuffer = createFrameBuffer()
 
     init {
         renderer.emulator = this
@@ -49,7 +47,7 @@ class Emulator(runtime: Runtime) {
                 currentOpCode.run {
                     execute()
                     renderer.update(deltaSeconds)
-                    if(renderer.crtEffect || drawRequested || frameBufferDirty) {
+                    if(drawRequested || frameBufferDirty) {
                         display.run {
                             renderer.draw()
                         }
@@ -88,9 +86,13 @@ class Emulator(runtime: Runtime) {
             }
         }
     }
+    private fun createFrameBuffer() = Array(Display.dimension.y) {
+        BooleanArray(Display.dimension.x) { false }
+    }
     companion object {
         const val gameOffset = 512
         const val fontOffset = 50
     }
 }
+
 

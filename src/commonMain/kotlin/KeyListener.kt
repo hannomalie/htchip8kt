@@ -1,5 +1,6 @@
-expect class KeyListener {
+interface KeyListener {
     val keysDown: Set<Keys>
+    fun update() { }
 }
 
 enum class Keys(val index: UInt) {

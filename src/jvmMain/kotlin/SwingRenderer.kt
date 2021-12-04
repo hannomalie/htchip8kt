@@ -2,27 +2,31 @@ import com.github.weisj.darklaf.LafManager
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics
+import java.awt.Image.SCALE_FAST
 import java.awt.KeyboardFocusManager
+import java.awt.image.BufferedImage
 import javax.swing.*
 
 
 val black = Color(0, 0, 0, 255)
 val white = Color(255, 255, 255, 255)
-val green = Color(255, 255, 255, 255)
+val green = Color(0, 185, 0, 255)
 
-class SwingRenderer private constructor(private val keyListener: KeyListener) : JPanel(), Renderer {
+class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JPanel(), Renderer {
     override var drawGrid = false
-    override var crtEffect = true
     override var emulator: Emulator? = null
         set(value) {
-            crtEffectCheckbox.isSelected = value?.renderer?.crtEffect ?: false
             drawGridJCheckBox.isSelected = value?.renderer?.drawGrid ?: false
             field = value
         }
 
-    private var lastFrameBuffer = Array(Display.dimension.x) {
-        FloatArray(Display.dimension.y) { 0f }
-    }
+    private var lastFrameBuffer = createFloatFrameBuffer()
+    private val bufferedImage = BufferedImage(
+        Display.dimension.x,
+        Display.dimension.y,
+        BufferedImage.TYPE_INT_RGB,
+    )
+
 
     override fun update(deltaSeconds: Float) {
         emulator?.let { emulator ->
@@ -42,6 +46,7 @@ class SwingRenderer private constructor(private val keyListener: KeyListener) : 
     private val alphaColorCache = mutableListOf<Color?>().apply {
         repeat(256) { add(it, null) }
     }
+
     override fun paintComponent(g: Graphics) {
         super.paintComponent(g)
         g.color = white
@@ -51,20 +56,34 @@ class SwingRenderer private constructor(private val keyListener: KeyListener) : 
             Display.dimension.x * pixelWidth,
             Display.dimension.y * pixelHeight
         )
-        if (crtEffect) {
-            lastFrameBuffer.forEachIndexed { columnIndex, column ->
-                column.forEachIndexed { rowIndex, row ->
-                    if (column[rowIndex] > 0) {
-                        val alpha = (column[rowIndex] * 255).toInt()
-                        g.color = alphaColorCache.computeIfAbsent(alpha) { Color(black.red, black.green, black.blue, alpha) }
-                        g.fillRect(
-                            padding + (columnIndex * pixelWidth),
-                            padding + (rowIndex * pixelHeight),
-                            pixelWidth,
-                            pixelHeight
+        emulator?.frameBuffer?.let { frameBuffer ->
+            frameBuffer.forEachColumnIndexed { rowIndex, row ->
+                row.forEachRowIndexed { columnIndex, column ->
+                    if (column) {
+                        bufferedImage.setRGB(
+                            columnIndex,
+                            rowIndex,
+                            Color.black.rgb
+                        )
+                    } else {
+                        bufferedImage.setRGB(
+                            columnIndex,
+                            rowIndex,
+                            Color.white.rgb
                         )
                     }
-                    if (drawGrid) {
+                }
+            }
+        }
+        g.drawImage(bufferedImage, padding, padding,
+            Display.dimension.x * pixelWidth,
+            Display.dimension.y * pixelHeight,
+            null
+        )
+        if(drawGrid) {
+            emulator?.frameBuffer?.let { frameBuffer ->
+                frameBuffer.forEachColumnIndexed { rowIndex, row ->
+                    row.forEachRowIndexed { columnIndex, column ->
                         g.color = black
                         g.drawRect(
                             padding + (columnIndex * pixelWidth),
@@ -72,31 +91,6 @@ class SwingRenderer private constructor(private val keyListener: KeyListener) : 
                             pixelWidth,
                             pixelHeight
                         )
-                    }
-                }
-            }
-        } else {
-            emulator?.frameBuffer?.let { frameBuffer ->
-                frameBuffer.forEachColumnIndexed { columnIndex, column ->
-                    column.forEachRowIndexed { rowIndex, row ->
-                        g.color = if (row) {
-                            black
-                        } else white
-                        g.fillRect(
-                            padding + (columnIndex * pixelWidth),
-                            padding + (rowIndex * pixelHeight),
-                            pixelWidth,
-                            pixelHeight
-                        )
-                        if (drawGrid) {
-                            g.color = black
-                            g.drawRect(
-                                padding + (columnIndex * pixelWidth),
-                                padding + (rowIndex * pixelHeight),
-                                pixelWidth,
-                                pixelHeight
-                            )
-                        }
                     }
                 }
             }
@@ -119,17 +113,6 @@ class SwingRenderer private constructor(private val keyListener: KeyListener) : 
             }
         }
     }
-    private val crtEffectCheckbox = Swing.invokeAndWait {
-        JCheckBox("CRT effect").apply {
-            addActionListener {
-                emulator?.renderer?.let { renderer ->
-                    renderer.crtEffect = !renderer.crtEffect
-                    draw()
-                }
-            }
-        }
-    }
-
     init {
         LafManager.install()
 
@@ -141,7 +124,6 @@ class SwingRenderer private constructor(private val keyListener: KeyListener) : 
                     }
                 })
                 add(drawGridJCheckBox)
-                add(crtEffectCheckbox)
             }
             size = Dimension(
                 2 * padding + Display.dimension.x * pixelWidth,
@@ -165,14 +147,19 @@ class SwingRenderer private constructor(private val keyListener: KeyListener) : 
         private const val pixelWidth = 10
         private const val pixelHeight = pixelWidth
 
-        operator fun invoke(keyListener: KeyListener) = Swing.invokeAndWait {
+        operator fun invoke(keyListener: SwingKeyListener = SwingKeyListener()) = Swing.invokeAndWait {
             SwingRenderer(keyListener)
         }
+
     }
 }
 
 private inline fun <E> MutableList<E>.computeIfAbsent(alpha: Int, function: () -> E): E {
-    if(get(alpha) == null) add(alpha, function())
+    if (get(alpha) == null) add(alpha, function())
 
     return this[alpha]
+}
+
+private fun createFloatFrameBuffer() = Array(Display.dimension.y) {
+    FloatArray(Display.dimension.x) { 0f }
 }
