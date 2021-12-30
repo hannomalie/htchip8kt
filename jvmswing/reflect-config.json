@@ -1,0 +1,104 @@
+[
+{
+  "name":"[Ljava.awt.event.MouseMotionListener;"}
+,
+{
+  "name":"com.sun.java.swing.plaf.windows.WindowsButtonUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]}
+,
+{
+  "name":"com.sun.java.swing.plaf.windows.WindowsLookAndFeel",
+  "methods":[{"name":"<init>","parameterTypes":[] }]}
+,
+{
+  "name":"com.sun.java.swing.plaf.windows.WindowsMenuBarUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]}
+,
+{
+  "name":"com.sun.java.swing.plaf.windows.WindowsRootPaneUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]}
+,
+{
+  "name":"java.awt.SequencedEvent"}
+,
+{
+  "name":"java.awt.SystemColor",
+  "fields":[
+    {"name":"activeCaption"}, 
+    {"name":"activeCaptionBorder"}, 
+    {"name":"activeCaptionText"}, 
+    {"name":"control"}, 
+    {"name":"controlDkShadow"}, 
+    {"name":"controlHighlight"}, 
+    {"name":"controlLtHighlight"}, 
+    {"name":"controlShadow"}, 
+    {"name":"controlText"}, 
+    {"name":"desktop"}, 
+    {"name":"inactiveCaption"}, 
+    {"name":"inactiveCaptionBorder"}, 
+    {"name":"inactiveCaptionText"}, 
+    {"name":"info"}, 
+    {"name":"infoText"}, 
+    {"name":"menu"}, 
+    {"name":"menuText"}, 
+    {"name":"scrollbar"}, 
+    {"name":"text"}, 
+    {"name":"textHighlight"}, 
+    {"name":"textHighlightText"}, 
+    {"name":"textInactiveText"}, 
+    {"name":"textText"}, 
+    {"name":"window"}, 
+    {"name":"windowBorder"}, 
+    {"name":"windowText"}
+  ]}
+,
+{
+  "name":"java.awt.event.KeyEvent",
+  "fields":[
+    {"name":"VK_CONTEXT_MENU"}, 
+    {"name":"VK_DOWN"}, 
+    {"name":"VK_ENTER"}, 
+    {"name":"VK_F10"}, 
+    {"name":"VK_LEFT"}, 
+    {"name":"VK_RIGHT"}, 
+    {"name":"VK_SPACE"}, 
+    {"name":"VK_UP"}
+  ]}
+,
+{
+  "name":"javax.swing.plaf.basic.BasicMenuBarUI",
+  "methods":[{"name":"loadActionMap","parameterTypes":["javax.swing.plaf.basic.LazyActionMap"] }]}
+,
+{
+  "name":"javax.swing.plaf.basic.BasicPanelUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]}
+,
+{
+  "name":"javax.swing.plaf.metal.MetalCheckBoxUI",
+  "methods":[{"name":"createUI","parameterTypes":["javax.swing.JComponent"] }]}
+,
+{
+  "name":"sun.awt.Symbol",
+  "methods":[{"name":"<init>","parameterTypes":[] }]}
+,
+{
+  "name":"sun.awt.Win32FontManager",
+  "methods":[{"name":"<init>","parameterTypes":[] }]}
+,
+{
+  "name":"sun.awt.Win32GraphicsEnvironment",
+  "methods":[{"name":"<init>","parameterTypes":[] }]}
+,
+{
+  "name":"sun.awt.windows.WToolkit",
+  "methods":[{"name":"<init>","parameterTypes":[] }]}
+,
+{
+  "name":"sun.awt.windows.WingDings",
+  "methods":[{"name":"<init>","parameterTypes":[] }]}
+,
+{
+  "name":"sun.java2d.marlin.DMarlinRenderingEngine",
+  "methods":[{"name":"<init>","parameterTypes":[] }]}
+
+]

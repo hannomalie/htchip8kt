@@ -2,9 +2,9 @@ import com.github.weisj.darklaf.LafManager
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics
-import java.awt.Image.SCALE_FAST
 import java.awt.KeyboardFocusManager
 import java.awt.image.BufferedImage
+import java.io.File
 import javax.swing.*
 
 
@@ -114,7 +114,21 @@ class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JP
         }
     }
     init {
-        LafManager.install()
+        System.setProperty("java.home", "dummyoverride")
+        val fontConfig: String? = System.getProperty("sun.awt.fontconfig")
+        if(fontConfig != null) {
+            println("Using font config $fontConfig")
+        } else {
+            val fontConfigFile = File("./fontconfig.properties")
+            println("Saving and using default font config ${fontConfigFile.absolutePath} .\n" +
+                    "When you don't like that, pass in system property 'sun.awt.fontconfig' pointing to your font config.")
+            fontConfigFile.writeText(javaClass.classLoader.getResource("fontconfig.properties").readText())
+            System.setProperty("sun.awt.fontconfig", fontConfigFile.absolutePath)
+        }
+        UIManager.setLookAndFeel(
+            UIManager.getSystemLookAndFeelClassName())
+//        LafManager.install()
+
 
         JFrame("CHIP 8 powered by Kotlin multiplatform").apply {
             jMenuBar = JMenuBar().apply {
@@ -126,8 +140,8 @@ class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JP
                 add(drawGridJCheckBox)
             }
             size = Dimension(
-                2 * padding + Display.dimension.x * pixelWidth,
-                6 * padding + Display.dimension.y * pixelWidth
+                4 * padding + Display.dimension.x * pixelWidth,
+                8 * padding + Display.dimension.y * pixelWidth
             )
             preferredSize = size
             defaultCloseOperation = JFrame.EXIT_ON_CLOSE
