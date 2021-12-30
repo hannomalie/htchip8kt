@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "de.hanno"
-version = "0.0.2-SNAPSHOT"
+version = "0.0.3-SNAPSHOT"
 
 repositories {
     mavenCentral()
