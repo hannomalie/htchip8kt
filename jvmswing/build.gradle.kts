@@ -53,3 +53,12 @@ val gatherGraalInfo by tasks.registering(Exec::class) {
         }
     }
 }
+
+distributions {
+    create("htchip8kt") {
+        distributionBaseName.set("htchip8kt")
+        contents {
+            from(buildDir.resolve("graal"))
+        }
+    }
+}
