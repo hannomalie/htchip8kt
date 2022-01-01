@@ -1,5 +1,6 @@
 interface Renderer {
     var drawGrid: Boolean
+    var crt: Boolean
     var emulator: Emulator?
     fun draw()
     fun update(deltaSeconds: Float) {}
@@ -8,6 +9,7 @@ interface Renderer {
 class CommandlineRenderer : Renderer {
     override var emulator: Emulator? = null
     override var drawGrid = false
+    override var crt = false
 
     override fun draw(): Unit = emulator?.let { emulator ->
         print((0 until Display.dimension.y).joinToString("\n") { row ->

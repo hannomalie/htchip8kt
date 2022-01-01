@@ -1,4 +1,3 @@
-import com.github.weisj.darklaf.LafManager
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics
@@ -6,6 +5,7 @@ import java.awt.KeyboardFocusManager
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.swing.*
+import kotlin.math.max
 
 
 val black = Color(0, 0, 0, 255)
@@ -14,9 +14,11 @@ val green = Color(0, 185, 0, 255)
 
 class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JPanel(), Renderer {
     override var drawGrid = false
+    override var crt = false
     override var emulator: Emulator? = null
         set(value) {
             drawGridJCheckBox.isSelected = value?.renderer?.drawGrid ?: false
+            crtEffectJCheckBox.isSelected = value?.renderer?.crt ?: false
             field = value
         }
 
@@ -24,7 +26,7 @@ class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JP
     private val bufferedImage = BufferedImage(
         Display.dimension.x,
         Display.dimension.y,
-        BufferedImage.TYPE_INT_RGB,
+        BufferedImage.TYPE_INT_ARGB,
     )
 
 
@@ -32,11 +34,10 @@ class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JP
         emulator?.let { emulator ->
             lastFrameBuffer.forEachIndexed { columnIndex, column ->
                 column.forEachIndexed { rowIndex, row ->
-                    if (row > 0) {
-                        column[rowIndex] = kotlin.math.max(0f, row - 0.02f)
-                    }
                     if (emulator.frameBuffer[columnIndex][rowIndex]) {
                         column[rowIndex] = 1.0f
+                    } else if(row > 0) {
+                        column[rowIndex] = max(0f, row - 0.01f)
                     }
                 }
             }
@@ -44,33 +45,34 @@ class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JP
     }
 
     private val alphaColorCache = mutableListOf<Color?>().apply {
-        repeat(256) { add(it, null) }
+        repeat(256) { add(it, Color(black.red, black.green, black.blue, it)) }
     }
 
+    private val pixel = IntArray(4)
     override fun paintComponent(g: Graphics) {
-        super.paintComponent(g)
-        g.color = white
-        g.fillRect(
-            padding,
-            padding,
-            Display.dimension.x * pixelWidth,
-            Display.dimension.y * pixelHeight
-        )
+//        In case of strange bugs, reread the documentation
+//        and change back from ui.update to super.paintComponent
+//        super.paintComponent(g)
+        ui.update(g, this)
+
         emulator?.frameBuffer?.let { frameBuffer ->
-            frameBuffer.forEachColumnIndexed { rowIndex, row ->
-                row.forEachRowIndexed { columnIndex, column ->
-                    if (column) {
-                        bufferedImage.setRGB(
-                            columnIndex,
-                            rowIndex,
-                            Color.black.rgb
-                        )
-                    } else {
-                        bufferedImage.setRGB(
-                            columnIndex,
-                            rowIndex,
-                            Color.white.rgb
-                        )
+            if(crt) {
+                lastFrameBuffer.forEachIndexed { rowIndex, row ->
+                    row.forEachIndexed { columnIndex, column ->
+                        val color = if (column > 0) {
+                            val alpha = (column * 255).toInt()
+                            alphaColorCache[alpha]!!
+                        } else {
+                            white
+                        }
+                        bufferedImage.setRGBEfficiently(columnIndex, rowIndex, color)
+                    }
+                }
+            } else {
+                frameBuffer.forEachRowIndexed { rowIndex, row ->
+                    row.forEachColumnIndexed { columnIndex, column ->
+                        val color = if (column) black else white
+                        bufferedImage.setRGBEfficiently(columnIndex, rowIndex, color)
                     }
                 }
             }
@@ -82,8 +84,8 @@ class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JP
         )
         if(drawGrid) {
             emulator?.frameBuffer?.let { frameBuffer ->
-                frameBuffer.forEachColumnIndexed { rowIndex, row ->
-                    row.forEachRowIndexed { columnIndex, column ->
+                frameBuffer.forEachRowIndexed { rowIndex, row ->
+                    row.forEachColumnIndexed { columnIndex, column ->
                         g.color = black
                         g.drawRect(
                             padding + (columnIndex * pixelWidth),
@@ -95,6 +97,12 @@ class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JP
                 }
             }
         }
+    }
+
+    private fun BufferedImage.setRGBEfficiently(columnIndex: Int, rowIndex: Int, color: Color) {
+        raster.setDataElements(
+            columnIndex, rowIndex, colorModel.getDataElements(color.rgb, pixel)
+        )
     }
 
     override fun draw() {
@@ -113,6 +121,16 @@ class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JP
             }
         }
     }
+    private val crtEffectJCheckBox = Swing.invokeAndWait {
+        JCheckBox("CRT effect").apply {
+            addActionListener {
+                emulator?.renderer?.let { renderer ->
+                    renderer.crt = !renderer.crt
+                    draw()
+                }
+            }
+        }
+    }
     init {
         System.setProperty("java.home", "dummyoverride")
         val fontConfig: String? = System.getProperty("sun.awt.fontconfig")
@@ -125,8 +143,7 @@ class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JP
             fontConfigFile.writeText(javaClass.classLoader.getResource("fontconfig.properties").readText())
             System.setProperty("sun.awt.fontconfig", fontConfigFile.absolutePath)
         }
-        UIManager.setLookAndFeel(
-            UIManager.getSystemLookAndFeelClassName())
+        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName())
 //        LafManager.install()
 
 
@@ -138,6 +155,7 @@ class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JP
                     }
                 })
                 add(drawGridJCheckBox)
+                add(crtEffectJCheckBox)
             }
             size = Dimension(
                 4 * padding + Display.dimension.x * pixelWidth,

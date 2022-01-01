@@ -47,7 +47,7 @@ class Emulator(runtime: Runtime) {
                 currentOpCode.run {
                     execute()
                     renderer.update(deltaSeconds)
-                    if(drawRequested || frameBufferDirty) {
+                    if(renderer.crt || drawRequested || frameBufferDirty) {
                         display.run {
                             renderer.draw()
                         }
