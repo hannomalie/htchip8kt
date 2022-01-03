@@ -62,6 +62,7 @@ class Emulator(runtime: Runtime) {
                 programCounter = (programCounter - 2.toUShort()).toUShort()
             }
         }
+        keyListener.update()
     }
 
     val frameBufferDirty: Boolean get() = V[0x0F].toUInt() == 1u && currentOpCode is Draw

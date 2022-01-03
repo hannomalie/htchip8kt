@@ -26,6 +26,7 @@ kotlin {
         val jvmMain by creating {
             dependencies {
                 implementation("com.github.weisj:darklaf-core:2.7.3")
+                implementation("io.github.spair:imgui-java-app:1.86.0")
             }
         }
         val jvmTest by creating {

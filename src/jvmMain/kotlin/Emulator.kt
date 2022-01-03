@@ -9,6 +9,7 @@ class JvmRuntime(
     override val renderer: Renderer,
 ): Runtime {
     constructor(renderer: SwingRenderer = SwingRenderer()): this(renderer.keyListener, renderer)
+    constructor(renderer: ImGuiRenderer): this(renderer, renderer)
 
     override fun Emulator.execute() {
 

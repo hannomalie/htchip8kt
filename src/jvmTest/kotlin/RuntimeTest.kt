@@ -48,4 +48,15 @@ internal class RuntimeTest {
             }
         }
     }
+
+    @Test
+    @Tag("manual")
+    fun `execute space invaders with imgui renderer`() {
+        JvmRuntime(ImGuiRenderer()).run {
+            Emulator(this).run {
+                load(Game(File("Space Invaders [David Winter].ch8").readBytes()))
+                execute()
+            }
+        }
+    }
 }
