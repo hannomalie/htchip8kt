@@ -12,7 +12,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("SwingMain")
+    mainClass.set("ImguiMain")
 }
 
 val jniConfigFile = projectDir.resolve("jni-config.json")
@@ -21,7 +21,7 @@ val resourceConfigFile = projectDir.resolve("resource-config.json")
 val graalDistributionVersion = "21.3.0"
 graal {
     graalVersion(graalDistributionVersion)
-    mainClass("SwingMain")
+    mainClass("ImguiMain")
     outputName("htchip8kt")
     javaVersion("11")
     windowsVsVarsPath("C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat")

@@ -10,6 +10,7 @@ import org.lwjgl.glfw.GLFW.GLFW_RESIZABLE
 import java.awt.Color
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.system.exitProcess
 
 class ImGuiRenderer : Application(), Renderer, KeyListener {
 
@@ -119,6 +120,9 @@ class ImGuiRenderer : Application(), Renderer, KeyListener {
         }
     }
 
+    override fun disposeWindow() {
+        exitProcess(1)
+    }
     companion object {
         private const val pixelWidth = 15
         private const val pixelHeight = pixelWidth

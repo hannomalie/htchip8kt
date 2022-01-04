@@ -38,6 +38,18 @@ object SwingMain {
     }
 }
 
+object ImguiMain {
+    @JvmStatic
+    fun main(args: Array<String>) {
+        JvmRuntime(ImGuiRenderer()).run {
+            Emulator(this).run {
+                load(Game(javaClass.getResourceAsStream("Space Invaders [David Winter].ch8").readBytes()))
+                execute()
+            }
+        }
+    }
+}
+
 val KeyEvent.keyOrNull
     get() = when (keyCode) {
         KeyEvent.VK_1 -> Keys.Number1
