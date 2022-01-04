@@ -87,13 +87,15 @@ class Emulator(runtime: Runtime) {
             }
         }
     }
-    private fun createFrameBuffer() = Array(Display.dimension.y) {
-        BooleanArray(Display.dimension.x) { false }
-    }
     companion object {
         const val gameOffset = 512
         const val fontOffset = 50
+
+        fun createFrameBuffer() = Array(Display.dimension.y) {
+            BooleanArray(Display.dimension.x) { false }
+        }
     }
 }
+
 
 

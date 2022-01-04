@@ -182,7 +182,6 @@ class SwingRenderer constructor(internal val keyListener: SwingKeyListener) : JP
         operator fun invoke(keyListener: SwingKeyListener = SwingKeyListener()) = Swing.invokeAndWait {
             SwingRenderer(keyListener)
         }
-
     }
 }
 

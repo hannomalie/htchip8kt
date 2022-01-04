@@ -1,9 +1,15 @@
+import Emulator.Companion.createFrameBuffer
 import imgui.ImGui
 import imgui.app.Application
 import imgui.app.Configuration
 import imgui.flag.ImGuiWindowFlags
+import imgui.type.ImInt
 import org.lwjgl.glfw.GLFW
+import org.lwjgl.glfw.GLFW.GLFW_FALSE
+import org.lwjgl.glfw.GLFW.GLFW_RESIZABLE
+import java.awt.Color
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicBoolean
 
 class ImGuiRenderer : Application(), Renderer, KeyListener {
 
@@ -18,13 +24,21 @@ class ImGuiRenderer : Application(), Renderer, KeyListener {
     }
     override fun configure(config: Configuration) {
         config.title = "htchip8kt on ImGui rocks!"
+        config.width = 1200
+        config.height = 720
     }
 
+    private val renderMode = ImInt(0)
+    private val copyingFrameBuffer = AtomicBoolean(false)
+    private val frameBufferCopy = createFrameBuffer()
+
     override fun process() {
+        while(copyingFrameBuffer.get()) {
+            Thread.onSpinWait()
+        }
+
         val windowWidth = ImGui.getIO().displaySizeX
-        val windowCenterX = 0.5f * windowWidth
         val windowHeight = ImGui.getIO().displaySizeX
-        val windowCenterY = 0.5f * windowHeight
 
         ImGui.setNextWindowBgAlpha(0f)
         ImGui.setNextWindowSize(windowWidth, windowHeight)
@@ -34,22 +48,55 @@ class ImGuiRenderer : Application(), Renderer, KeyListener {
             ImGuiWindowFlags.NoMove or ImGuiWindowFlags.NoScrollbar
         ImGui.begin("CHIP-8", flags)
 
-        emulator?.frameBuffer?.forEachRowIndexed { rowIndex, row ->
-            var rowString = ""
-            row.forEachColumnIndexed { columnIndex, column ->
-                val color = if (column) "#" else " "
-                rowString += color
-//                ImGui.getWindowDrawList().addRectFilled(windowCenterX, windowCenterY, 10f, 10f, Color.green.rgb)
-            }
-            ImGui.text(rowString)
-        }
+        ImGui.text("Render Mode: "); ImGui.sameLine()
+        ImGui.radioButton("Text", renderMode, 0); ImGui.sameLine()
+        ImGui.radioButton("Blocks", renderMode, 1)
+
         ImGui.text("Framerate: " + ImGui.getIO().framerate)
+        when(renderMode.get()) {
+            0 -> {
+                frameBufferCopy.forEachRowIndexed { _, row ->
+                    row.forEachColumnIndexed { _, column ->
+                        ImGui.textWrapped(if (column) "#" else " "); ImGui.sameLine()
+                    }
+                    ImGui.text("\n")
+                }
+            }
+            1 -> {
+                frameBufferCopy.forEachRowIndexed { rowIndex, row ->
+                    row.forEachColumnIndexed { columnIndex, column ->
+                        val color = if (column) Color.black else Color.white
+                        ImGui.getWindowDrawList().addRectFilled(
+                            columnIndex.toFloat() * pixelWidth,
+                            padding + rowIndex.toFloat() * pixelHeight,
+                            (columnIndex.toFloat() * pixelWidth) + pixelWidth.toFloat(),
+                            padding + (rowIndex.toFloat() * pixelHeight) + pixelHeight.toFloat(),
+                            color.rgb
+                        )
+                    }
+                }
+            }
+        }
 
 
         handleKeys()
         ImGui.end()
     }
 
+    override fun draw() {
+        copyingFrameBuffer.getAndSet(true)
+
+        emulator?.frameBuffer?.let {
+            it.forEachRowIndexed { rowIndex, row ->
+                val copyRow = frameBufferCopy[rowIndex]
+                row.forEachColumnIndexed { columnIndex, column ->
+                    copyRow[columnIndex] = column
+                }
+            }
+        }
+
+        copyingFrameBuffer.getAndSet(false)
+    }
     private fun handleKeys() {
         _keysDown.clear()
         when {
@@ -73,11 +120,13 @@ class ImGuiRenderer : Application(), Renderer, KeyListener {
     }
 
     companion object {
+        private const val pixelWidth = 15
+        private const val pixelHeight = pixelWidth
+        private const val padding = 5 * pixelWidth
+
         @JvmStatic
         fun main(args: Array<String>) {
             launch(ImGuiRenderer())
         }
     }
-
-    override fun draw() { }
 }
